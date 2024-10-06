@@ -67,7 +67,7 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 
 ## Acknowledgments
 - University of Kentucky for providing data on campus green spaces.
-- Urban Forest Itiative 
+- Urban Forest Initiative 
 
 ## Contact
 team 0x22 - thea.francis@ky.edu
