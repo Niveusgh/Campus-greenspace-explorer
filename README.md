@@ -73,6 +73,7 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 Team 0x22 
 - Charles.Key@uky.edu
 - Bowen.Fan@uky.edu
-- thea.francis@ky.edu
+- Jonathan.Dean@uky.edu
+- Thea.Francis@ky.edu
 
 Project Link: [https://github.com/Niveusgh/Campus-greenspace-explorer](https://github.com/Niveusgh/Campus-greenspace-explorer)
