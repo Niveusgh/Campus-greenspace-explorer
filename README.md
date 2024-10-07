@@ -26,7 +26,7 @@ CampusGreen is a mobile-friendly web application designed to help university stu
 1. Clone the repository:
    ```
    git clone https://github.com/niveusgh/campus-greenspace-explorer.git
-   cd campusgreen
+   cd campus-greenspace-explorer
    ```
 
 2. Set up a virtual environment (optional but recommended):
