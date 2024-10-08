@@ -1,0 +1,33 @@
+# Mac OS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Python files
+*.pyc
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+*.venv
+env/
+ENV/
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Logs
+*.log
+
+# IDE specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Database
+*.db
+*.sqlite3
