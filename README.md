@@ -4,11 +4,13 @@
 CampusGreen is a mobile-friendly web application designed to help university students and staff discover and learn about green spaces on campus. It provides an interactive map, detailed plant information, and interesting historical facts about the campus environment.
 
 ## Features
+- **Homepage**: A welcoming entry point to improve user experience.
 - **Interactive Campus Map**: Explore green spaces with a touch-friendly interface.
 - **Green Space Details**: Learn about different types of green areas (gardens, groves, lawns).
 - **Plant Species Information**: Discover native and notable plants in each green space.
 - **Historical and Fun Facts**: Engage with interesting stories about plants and spaces.
 - **Basic Care Tips**: Access simple plant care instructions (optional feature).
+- **Green Space History**: (Potential feature) Explore the history of specific green spaces, including trivia and fun facts.
 
 ## Technology Stack
 - Backend: Python with Flask
@@ -58,6 +60,7 @@ CampusGreen is a mobile-friendly web application designed to help university stu
 - Tap on map markers to view information about each space.
 - Browse plant species information and historical facts.
 - Access care tips for plants by tapping the designated icon.
+- If available, explore the history of specific green spaces by tapping the designated icon.
 
 ## Contributing
 We welcome contributions to CampusGreen! Please read our [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
@@ -77,3 +80,5 @@ Team 0x22
 - Thea.Francis@ky.edu
 
 Project Link: [https://github.com/Niveusgh/Campus-greenspace-explorer](https://github.com/Niveusgh/Campus-greenspace-explorer)
+
+
