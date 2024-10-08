@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const mapContainer = document.getElementById('map-container');
         if (mapContainer) {
             // Here you would typically initialize your map
-            // For example, if using Leaflet.js:
+            // if using Leaflet.js:
             // const map = L.map('map-container').setView([38.0406, -84.5037], 13);
             // L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
             console.log('Map container found. Map would be initialized here.');
