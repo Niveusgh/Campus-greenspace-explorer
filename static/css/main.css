@@ -16,12 +16,31 @@ body {
 header {
     background-color: #4CAF50;
     color: white;
-    text-align: center;
     padding: 1rem;
+    /* Add these new properties */
+    display: flex;
+    align-items: center;
+    gap: 20px;
 }
 
-header h1 {
-    margin-bottom: 0.5rem;
+/* Add Logo Styles */
+.logo {
+    max-height: 60px;  /* Smaller to match title height */
+    margin: 0;         /* Remove auto margins */
+    transition: transform 0.2s ease;
+}
+
+.site-title {
+    margin: 0;
+    font-size: 2em;
+}
+
+.site-subtitle {
+    margin: 5px 0 0 0;
+}
+
+.header-text p {
+    margin: 5px 0 0 0;  /* Add some space between title and subtitle */
 }
 
 /* Navigation Styles */
@@ -87,5 +106,16 @@ footer {
     
     nav ul li {
         margin: 5px 0;
+    }
+
+    /* Add responsive logo styles */
+    .logo {
+        max-height: 50px;  /* Slightly smaller on mobile */
+    }
+    .site-title {
+        font-size: 1.5em;
+    }
+    .site-subtitle {
+        font-size: 0.9em;
     }
 }

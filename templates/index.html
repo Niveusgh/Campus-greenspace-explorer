@@ -1,57 +1,28 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CampusGreen: Interactive Green Space Explorer</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-</head>
-<body>
-    <header>
-        <h1>CampusGreen</h1>
-        <p>Explore the green spaces on our campus</p>
-    </header>
+{% extends "base.html" %}
 
-    <nav>
-        <ul>
-            <li><a href="{{ url_for('index') }}">Home</a></li>
-            <li><a href="{{ url_for('map') }}">Map</a></li>
-            <li><a href="{{ url_for('about') }}">About</a></li>
-        </ul>
-    </nav>
+{% block content %}
+<section id="welcome">
+    <h2>Welcome to CampusGreen</h2>
+    <p>Discover the natural beauty of UK.</p>
+</section>
 
-    <main>
-        <section id="welcome">
-            <h2>Welcome to CampusGreen</h2>
-            <p>Discover the natural beauty of UK.</p>
-        </section>
+<section id="featured-spaces">
+    <h2>List of Green Spaces</h2>
+    <div class="green-space-list">
+        <div class="green-space-item">
+            <h3>WT Young Library Lawn</h3>
+            <p>An open space perfect for sunbathing.</p>
+        </div>
+        <div class="green-space-item">
+            <h3>President Garden</h3>
+            <p>Home to a nice lily pond.</p>
+        </div>
+    </div>
+</section>
 
-        <section id="featured-spaces">
-            <h2>List of Green Spaces</h2>
-            <div class="green-space-list">
-                <!-- This section can be populated dynamically with Flask -->
-                <div class="green-space-item">
-                    <h3>WT Young Library Lawn</h3>
-                    <p>An open space perfect for sunbathing.</p>
-                </div>
-                <div class="green-space-item">
-                    <h3>President Garden</h3>
-                    <p>Home to a nice lily pond.</p>
-                </div>
-            </div>
-        </section>
-
-        <section id="get-started">
-            <h2>Get Started</h2>
-            <p>Ready to explore? Head over to our map!</p>
-            <a href="{{ url_for('map') }}" class="btn">View Map</a>
-        </section>
-    </main>
-
-    <footer>
-        <p>&copy; 2024 CampusGreen - Team 0x22 - University of Kentucky</p>
-    </footer>
-
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-</body>
-</html>
+<section id="get-started">
+    <h2>Get Started</h2>
+    <p>Ready to explore? Head over to our map!</p>
+    <a href="{{ url_for('map') }}" class="btn">View Map</a>
+</section>
+{% endblock %}

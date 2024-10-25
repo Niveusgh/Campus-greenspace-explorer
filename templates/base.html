@@ -9,12 +9,13 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <header>
-        <h1>CampusGreen</h1>
-        <p>Interactive Green Space Explorer</p>
+    <header class="header-text">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="CampusGreen Logo" class="logo">
+        <h1 class="site-title">CampusGreen</h1>
+        <p class="site-subtitle">Explore the green spaces on our campus</p>
     </header>
 
-    <nav>
+    <nav class="nav-bar">
         <ul>
             <li><a href="{{ url_for('index') }}">Home</a></li>
             <li><a href="{{ url_for('map') }}">Map</a></li>
