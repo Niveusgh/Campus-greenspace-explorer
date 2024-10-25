@@ -55,8 +55,8 @@ The application uses two main data sources:
    ```
 
 4. Set up the database:
-   ``bash
-   # After installing requirements
+   ```
+   bash
    flask db init      # Initialize the database
    flask db migrate   # Generate migration
    flask db upgrade   # Apply migration
