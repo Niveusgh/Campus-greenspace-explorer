@@ -11,12 +11,24 @@ CampusGreen is a mobile-friendly web application designed to help university stu
 - **Historical and Fun Facts**: Engage with interesting stories about plants and spaces.
 - **Basic Care Tips**: Access simple plant care instructions (optional feature).
 - **Green Space History**: (Potential feature) Explore the history of specific green spaces, including trivia and fun facts.
+- **UK Tree Integration**: Access official University of Kentucky tree inventory data
+- **Custom Tree Submissions**: Add and track user-identified trees on campus
 
 ## Technology Stack
-- Backend: Python with Flask
-- Frontend: HTML5, CSS3, JavaScript
-- Database: SQLite
-- Mapping: Leaflet.js
+* Backend: Python with Flask
+* Frontend: HTML5, CSS3, JavaScript
+* Database: 
+  - SQLite for user submissions
+  - CSV integration for UK tree inventory
+* Mapping: Leaflet.js
+* Additional Libraries:
+  - Flask-SQLAlchemy for database management
+  - Pandas for data processing
+
+## Data Sources
+The application uses two main data sources:
+1. **UK Tree Inventory**: Official tree data from the University of Kentucky's Urban Forest Initiative
+2. **User Submissions**: Custom tree identifications submitted by users
 
 ## Getting Started
 
@@ -43,8 +55,11 @@ CampusGreen is a mobile-friendly web application designed to help university stu
    ```
 
 4. Set up the database:
-   ```
-   python setup_db.py
+   ``bash
+   # After installing requirements
+   flask db init      # Initialize the database
+   flask db migrate   # Generate migration
+   flask db upgrade   # Apply migration
    ```
 
 5. Run the application:
@@ -77,7 +92,7 @@ Team 0x22
 - Charles.Key@uky.edu
 - Bowen.Fan@uky.edu
 - Jonathan.Dean@uky.edu
-- Thea.Francis@ky.edu
+- Thea.Francis@uky.edu
 
 Project Link: [https://github.com/Niveusgh/Campus-greenspace-explorer](https://github.com/Niveusgh/Campus-greenspace-explorer)
 
