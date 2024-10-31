@@ -1,4 +1,4 @@
-/* Reset some basic elements */
+
 * {
     margin: 0;
     padding: 0;
@@ -8,8 +8,8 @@
 body {
     font-family: Arial, sans-serif;
     line-height: 1.6;
-    color: #333;
-    background-color: #f4f4f4;
+    color: #C7C4BF;
+    background-color: #191A1C;
 }
 
 /* Header Styles */
@@ -17,36 +17,42 @@ header {
     background-color: #4CAF50;
     color: white;
     padding: 1rem;
-    /* Add these new properties */
     display: flex;
     align-items: center;
     gap: 20px;
 }
 
-/* Add Logo Styles */
+/* Logo Styles */
 .logo {
     max-height: 60px;  /* Smaller to match title height */
     margin: 0;         /* Remove auto margins */
+    flex-shrink: 0; /* Prevents logo from shrinking */
     transition: transform 0.2s ease;
+}
+
+.header-text {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;  /* Add some space between title and subtitle */
 }
 
 .site-title {
     margin: 0;
     font-size: 2em;
+    line-height: 1.2;
 }
 
 .site-subtitle {
-    margin: 5px 0 0 0;
+    margin: 0;
+    opacity: 0.9;
+    margin: 0;
 }
 
-.header-text p {
-    margin: 5px 0 0 0;  /* Add some space between title and subtitle */
-}
 
 /* Navigation Styles */
 nav {
     background-color: #333;
-    color: white;
+    color: #C7C4BF;
     padding: 0.5rem;
 }
 
@@ -61,7 +67,7 @@ nav ul li {
 }
 
 nav ul li a {
-    color: white;
+    color: #C7C4BF;
     text-decoration: none;
 }
 
@@ -90,7 +96,7 @@ main {
 /* Footer Styles */
 footer {
     background-color: #333;
-    color: white;
+    color: #C7C4BF;
     text-align: center;
     padding: 1rem;
     position: fixed;
