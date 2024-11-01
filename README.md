@@ -30,6 +30,11 @@ The application uses two main data sources:
 1. **UK Tree Inventory**: Official tree data from the University of Kentucky's Urban Forest Initiative
 2. **User Submissions**: Custom tree identifications submitted by users
 
+### Resource Links
+- [ExploreUK](https://exploreuk.uky.edu/) - Historical campus data
+- [UKY UFI](https://ufi.ca.uky.edu/) - Urban Forest Initiative
+- [PG Cloud UKY](https://pg-cloud.com/UKY/) - Additional campus resources
+
 ## Getting Started
 
 ### Prerequisites
