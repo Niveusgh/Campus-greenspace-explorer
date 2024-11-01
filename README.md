@@ -100,5 +100,3 @@ Team 0x22
 - Thea.Francis@uky.edu
 
 Project Link: [https://github.com/Niveusgh/Campus-greenspace-explorer](https://github.com/Niveusgh/Campus-greenspace-explorer)
-
-
