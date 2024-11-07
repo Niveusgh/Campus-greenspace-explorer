@@ -31,7 +31,7 @@
     <nav class="nav-bar">
         <ul>
             <li><a href="{{ url_for('index') }}" {% if request.endpoint == 'index' %}class="active"{% endif %}>Home</a></li>
-            <li><a href="{{ url_for('map') }}" {% if request.endpoint == 'map' %}class="active"{% endif %}>Map</a></li>
+            <li><a href="{{ url_for('wellness') }}" {% if request.endpoint == 'wellness' %}class="active"{% endif %}>Benefits</a></li>
             <li><a href="{{ url_for('about') }}" {% if request.endpoint == 'about' %}class="active"{% endif %}>About</a></li>
         </ul>
     </nav>

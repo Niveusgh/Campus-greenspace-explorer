@@ -15,6 +15,10 @@ def index():
 def map():
     return render_template('map.html')
 
+@app.route('/wellness')
+def wellness():
+    return render_template('wellness.html')
+
 @app.route('/about')
 def about():
     return render_template('about.html')

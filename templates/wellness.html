@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<style>
+    .wellness-container {
+        padding: 20px;
+        margin-bottom: 60px;
+    }
+
+    .benefit-card {
+        background: #2A2A2A;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        border-left: 4px solid #558B6E;
+        transition: transform 0.2s;
+    }
+
+    .benefit-card:hover {
+        transform: translateY(-2px);
+    }
+
+    .benefit-header {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+
+    .benefit-icon {
+        background: #558B6E;
+        padding: 12px;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .benefit-title {
+        color: #558B6E;
+        margin: 0;
+    }
+
+    .quick-tips {
+        background: #222;
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 30px;
+    }
+
+    .tip-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-top: 15px;
+    }
+
+    .tip-item {
+        background: #2A2A2A;
+        padding: 15px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .study-spots {
+        margin-top: 30px;
+    }
+
+    .spot-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        margin-top: 15px;
+    }
+
+    .spot-card {
+        background: #2A2A2A;
+        border-radius: 12px;
+        padding: 15px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .spot-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: #558B6E;
+    }
+
+    .feature-tag {
+        display: inline-block;
+        padding: 4px 10px;
+        background: #333;
+        border-radius: 12px;
+        font-size: 0.9em;
+        margin: 5px;
+    }
+
+    @media (max-width: 768px) {
+        .wellness-container {
+            padding: 15px;
+        }
+
+        .benefit-header {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .spot-cards {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="wellness-container">
+    <h2>Green Space Benefits</h2>
+    <p>Discover how campus green spaces enhance your wellbeing and academic success</p>
+
+    <!-- Key Benefits -->
+    <div class="benefit-card">
+        <div class="benefit-header">
+            <div class="benefit-icon">🧠</div>
+            <h3 class="benefit-title">Better Focus & Memory</h3>
+        </div>
+        <p>Studies show that spending just 20 minutes in nature can improve concentration and memory retention by up to 20%.</p>
+    </div>
+
+    <div class="benefit-card">
+        <div class="benefit-header">
+            <div class="benefit-icon">😌</div>
+            <h3 class="benefit-title">Stress Reduction</h3>
+        </div>
+        <p>Green spaces can lower cortisol levels by 15% and provide a natural break from academic pressure.</p>
+    </div>
+
+    <div class="benefit-card">
+        <div class="benefit-header">
+            <div class="benefit-icon">🌱</div>
+            <h3 class="benefit-title">Creative Boost</h3>
+        </div>
+        <p>Natural environments enhance creative thinking and problem-solving abilities.</p>
+    </div>
+
+    <!-- Quick Tips -->
+    <div class="quick-tips">
+        <h3>Quick Wellness Tips</h3>
+        <div class="tip-grid">
+            <div class="tip-item">
+                <span>☀️</span>
+                <p>Take a 10-minute nature break between classes</p>
+            </div>
+            <div class="tip-item">
+                <span>📚</span>
+                <p>Study outdoors during mild weather</p>
+            </div>
+            <div class="tip-item">
+                <span>🚶</span>
+                <p>Walk through green spaces to your next class</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Best Study Spots -->
+    <div class="study-spots">
+        <h3>Top Green Study Spots</h3>
+        <div class="spot-cards">
+            <div class="spot-card">
+                <h4>WT Young Library Lawn</h4>
+                <p>Perfect for outdoor studying with plenty of shade and seating.</p>
+                <div>
+                    <span class="feature-tag">WiFi Available</span>
+                    <span class="feature-tag">Natural Shade</span>
+                    <span class="feature-tag">Seating</span>
+                </div>
+            </div>
+
+            <div class="spot-card">
+                <h4>President's Garden</h4>
+                <p>Quiet spot with calming water features and natural beauty.</p>
+                <div>
+                    <span class="feature-tag">Peaceful</span>
+                    <span class="feature-tag">Water Feature</span>
+                    <span class="feature-tag">Benches</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
