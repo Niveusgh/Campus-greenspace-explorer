@@ -1,0 +1,12 @@
+{# templates/map.html #}
+{% extends "base.html" %}
+
+{% block content %}
+<div id="map-root"></div>
+
+<!-- CSS for Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+
+<!-- Your bundled React app will be included here -->
+<script type="module" src="{{ url_for('static', filename='js/react/dist/mapApp.js') }}"></script>
+{% endblock %}

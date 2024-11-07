@@ -31,3 +31,7 @@ instance/
 # Database
 *.db
 *.sqlite3
+
+# React/Node
+node_modules/
+static/js/react/dist/
