@@ -1,28 +1,357 @@
 {% extends "base.html" %}
 
+{% block extra_css %}
+<style>
+    /* Mobile-first base styles */
+    .main-container {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        padding: 10px;
+        margin-bottom: 70px; /* Larger footer clearance for mobile */
+    }
+
+    /* Collapsible sidebar for mobile */
+    .sidebar {
+        background: #222;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .sidebar-toggle {
+        width: 100%;
+        padding: 15px;
+        background: #558B6E;
+        color: white;
+        border: none;
+        text-align: left;
+        font-size: 1.1em;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .sidebar-toggle::after {
+        content: '▼';
+        font-size: 0.8em;
+        transition: transform 0.3s;
+    }
+
+    .sidebar-toggle.active::after {
+        transform: rotate(180deg);
+    }
+
+    .sidebar-content {
+        padding: 15px;
+        display: none;
+    }
+
+    .sidebar-content.active {
+        display: block;
+    }
+
+    /* Featured spaces list */
+    .green-space-list {
+        margin-top: 15px;
+    }
+
+    .green-space-item {
+        background: #2A2A2A;
+        border-radius: 4px;
+        padding: 15px;
+        margin-bottom: 10px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .green-space-item:hover {
+        background: #333;
+    }
+
+    .green-space-item h3 {
+        color: #558B6E;
+        margin-bottom: 5px;
+        font-size: 1.1em;
+    }
+
+    /* Map section */
+    .map-section {
+        background: #222;
+        border-radius: 8px;
+        padding: 15px;
+        height: calc(100vh - 250px); /* Adjust based on your header/footer */
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Mobile-optimized controls */
+    .map-controls {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 15px;
+        overflow-x: auto;
+        padding-bottom: 5px;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .layer-toggle {
+        padding: 10px 15px;
+        background: #558B6E;
+        color: white;
+        border: none;
+        border-radius: 20px; /* Rounded buttons for better touch */
+        cursor: pointer;
+        transition: background-color 0.3s;
+        white-space: nowrap;
+        font-size: 0.9em;
+    }
+
+    .layer-toggle.active {
+        background: #3A5E4A;
+    }
+
+    /* Map container */
+    .map-layers {
+        position: relative;
+        background: #2A2A2A;
+        border-radius: 4px;
+        overflow: hidden;
+        flex-grow: 1;
+        touch-action: manipulation; /* Better touch handling */
+    }
+
+    .map-layers svg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    /* Make SVG elements more touch-friendly */
+    path, polygon {
+        cursor: pointer;
+        transition: fill 0.3s;
+    }
+
+    path:hover, polygon:hover {
+        fill: #558B6E;
+        opacity: 0.7;
+    }
+
+    /* Bottom info panel */
+    .info-panel {
+        background: #2A2A2A;
+        padding: 15px;
+        border-radius: 4px;
+        margin-top: 10px;
+        color: #C7C4BF;
+        max-height: 30vh;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .info-panel h3 {
+        color: #558B6E;
+        margin-bottom: 10px;
+        font-size: 1.2em;
+    }
+
+    /* Desktop styles */
+    @media (min-width: 768px) {
+        .main-container {
+            flex-direction: row;
+            padding: 20px;
+        }
+
+        .sidebar {
+            width: 300px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-toggle {
+            display: none;
+        }
+
+        .sidebar-content {
+            display: block !important;
+            padding: 20px;
+        }
+
+        .map-section {
+            flex-grow: 1;
+            height: calc(100vh - 200px);
+        }
+
+        .map-controls {
+            flex-wrap: wrap;
+        }
+
+        .layer-toggle {
+            padding: 8px 16px;
+        }
+
+        .info-panel {
+            max-height: 200px;
+        }
+    }
+
+    /* Touch-specific optimizations */
+    @media (hover: none) {
+        .layer-toggle {
+            min-height: 44px; /* iOS minimum touch target */
+        }
+
+        .green-space-item {
+            padding: 12px 15px;
+            margin-bottom: 8px;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<section id="welcome">
-    <h2>Welcome to CampusGreen</h2>
-    <p>Discover the natural beauty of UK.</p>
-</section>
+<div class="main-container">
+    <aside class="sidebar">
+        <button class="sidebar-toggle">
+            Featured Spaces
+        </button>
+        <div class="sidebar-content">
+            <section id="welcome">
+                <h2>Welcome to CampusGreen</h2>
+                <p>Discover the natural beauty of UK.</p>
+            </section>
 
-<section id="featured-spaces">
-    <h2>List of Green Spaces</h2>
-    <div class="green-space-list">
-        <div class="green-space-item">
-            <h3>WT Young Library Lawn</h3>
-            <p>An open space perfect for sunbathing.</p>
+            <section class="green-space-list">
+                <div class="green-space-item" data-location="WT Young Library Lawn">
+                    <h3>WT Young Library Lawn</h3>
+                    <p>An open space perfect for sunbathing.</p>
+                </div>
+                <div class="green-space-item" data-location="President Garden">
+                    <h3>President Garden</h3>
+                    <p>Home to a nice lily pond.</p>
+                </div>
+            </section>
         </div>
-        <div class="green-space-item">
-            <h3>President Garden</h3>
-            <p>Home to a nice lily pond.</p>
-        </div>
-    </div>
-</section>
+    </aside>
 
-<section id="get-started">
-    <h2>Get Started</h2>
-    <p>Ready to explore? Head over to our map!</p>
-    <a href="{{ url_for('map') }}" class="btn">View Map</a>
-</section>
+    <section class="map-section">
+        <div class="map-controls">
+            <button class="layer-toggle active" data-layer="buildings">Buildings</button>
+            <button class="layer-toggle active" data-layer="spaces">Green Spaces</button>
+            <button class="layer-toggle active" data-layer="paths">Paths</button>
+        </div>
+        
+        <div class="map-layers">
+            <!-- SVGs will be loaded here -->
+        </div>
+
+        <div class="info-panel">
+            <h3>Explore Our Campus</h3>
+            <p>Tap on any area of the map to learn more about it.</p>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const mapLayers = document.querySelector('.map-layers');
+    const infoPanel = document.querySelector('.info-panel');
+    const sidebarToggle = document.querySelector('.sidebar-toggle');
+    const sidebarContent = document.querySelector('.sidebar-content');
+    
+    // Sidebar toggle for mobile
+    sidebarToggle?.addEventListener('click', () => {
+        sidebarToggle.classList.toggle('active');
+        sidebarContent.classList.toggle('active');
+    });
+
+    // Load SVGs
+    const svgFiles = {
+        buildings: "{{ url_for('static', filename='images/map/Buildings.svg') }}",
+        spaces: "{{ url_for('static', filename='images/map/Green Spaces.svg') }}",
+        paths: "{{ url_for('static', filename='images/map/Paths.svg') }}"
+    };
+
+    // Location database
+    const locationInfo = {
+        'WT Young Library Lawn': {
+            description: 'An open space perfect for sunbathing and outdoor studying.',
+            features: ['Open Grass Area', 'Study Spots', 'WiFi Access', 'Natural Shade']
+        },
+        'President Garden': {
+            description: 'A serene garden featuring a beautiful lily pond and various native plants.',
+            features: ['Lily Pond', 'Native Plants', 'Benches', 'Shade Trees']
+        }
+    };
+
+    // Load SVG files
+    Object.entries(svgFiles).forEach(([key, path]) => {
+        fetch(path)
+            .then(response => response.text())
+            .then(svgContent => {
+                const div = document.createElement('div');
+                div.innerHTML = svgContent;
+                const svg = div.querySelector('svg');
+                svg.classList.add(`layer-${key}`);
+                mapLayers.appendChild(svg);
+
+                // Add touch/click handlers
+                svg.querySelectorAll('path, polygon').forEach(element => {
+                    element.addEventListener('click', (e) => {
+                        e.preventDefault(); // Prevent double-tap zoom on mobile
+                        const name = element.getAttribute('id') || 'Unnamed Location';
+                        updateInfoPanel(name);
+                    });
+                });
+            });
+    });
+
+    // Layer toggles
+    document.querySelectorAll('.layer-toggle').forEach(button => {
+        button.addEventListener('click', () => {
+            const layer = button.dataset.layer;
+            button.classList.toggle('active');
+            const svg = document.querySelector(`.layer-${layer}`);
+            if (svg) {
+                svg.style.display = button.classList.contains('active') ? 'block' : 'none';
+            }
+        });
+    });
+
+    // Clickable sidebar items
+    document.querySelectorAll('.green-space-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const location = item.dataset.location;
+            updateInfoPanel(location);
+            // On mobile, auto-close the sidebar after selection
+            if (window.innerWidth < 768) {
+                sidebarToggle.classList.remove('active');
+                sidebarContent.classList.remove('active');
+            }
+        });
+    });
+
+    function updateInfoPanel(locationName) {
+        const info = locationInfo[locationName] || {
+            description: 'A beautiful spot on campus.',
+            features: ['Green Space']
+        };
+
+        infoPanel.innerHTML = `
+            <h3>${locationName}</h3>
+            <p>${info.description}</p>
+            ${info.features.length ? `
+                <h4 style="color: #558B6E; margin-top: 10px;">Features:</h4>
+                <ul style="list-style-position: inside; margin-top: 5px;">
+                    ${info.features.map(f => `<li>${f}</li>`).join('')}
+                </ul>
+            ` : ''}
+        `;
+    }
+});
+</script>
 {% endblock %}
