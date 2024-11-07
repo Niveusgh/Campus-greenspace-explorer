@@ -16,14 +16,15 @@ CampusGreen is a mobile-friendly web application designed to help university stu
 
 ## Technology Stack
 * Backend: Python with Flask
-* Frontend: HTML5, CSS3, JavaScript
-* Database: 
+* Frontend: React, HTML5, CSS3, JavaScript
+* Database:
   - SQLite for user submissions
   - CSV integration for UK tree inventory
-* Mapping: Leaflet.js
+* Mapping: Leaflet.js, React-Leaflet
 * Additional Libraries:
   - Flask-SQLAlchemy for database management
   - Pandas for data processing
+  - Vite for frontend build tooling
 
 ## Data Sources
 The application uses two main data sources:
@@ -36,40 +37,43 @@ The application uses two main data sources:
 - [PG Cloud UKY](https://pg-cloud.com/UKY/) - Additional campus resources
 
 ## Getting Started
-
 ### Prerequisites
 - Python 3.7+
+- Node.js 18+
 - pip (Python package installer)
 
 ### Installation
+For detailed installation instructions, see [INSTALLATION.md](INSTALLATION.md)
+
 1. Clone the repository:
-   ```
+   ```bash
    git clone https://github.com/niveusgh/campus-greenspace-explorer.git
    cd campus-greenspace-explorer
    ```
 
-2. Set up a virtual environment (optional but recommended):
-   ```
+2. Set up a virtual environment:
+   ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows use `venv\Scripts\activate`
    ```
 
 3. Install required packages:
-   ```
+   ```bash
    pip install -r requirements.txt
+   cd static/js/react && npm install
    ```
 
 4. Set up the database:
-   ```
-   bash
+   ```bash
    flask db init      # Initialize the database
    flask db migrate   # Generate migration
    flask db upgrade   # Apply migration
    ```
 
-5. Run the application:
-   ```
-   python app.py
+5. Build frontend and run the application:
+   ```bash
+   cd static/js/react && npm run build
+   cd ../../.. && flask run
    ```
 
 6. Open a web browser and navigate to `http://localhost:5000`
@@ -90,10 +94,10 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 
 ## Acknowledgments
 - University of Kentucky for providing data on campus green spaces.
-- Urban Forest Initiative 
+- Urban Forest Initiative
 
 ## Contact
-Team 0x22 
+Team 0x22
 - Charles.Key@uky.edu
 - Bowen.Fan@uky.edu
 - Jonathan.Dean@uky.edu
