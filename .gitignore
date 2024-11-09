@@ -31,3 +31,11 @@ instance/
 # Database
 *.db
 *.sqlite3
+
+node_modules/
+node_modules/*
+
+# React build files
+static/js/react/dist/
+static/js/react/dist/*
+*.c3b53907.js    # or more generally: *.js.map
