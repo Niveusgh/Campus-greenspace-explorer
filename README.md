@@ -63,7 +63,7 @@ For detailed installation instructions, see [INSTALLATION.md](INSTALLATION.md)
 
 4. Set up the database:
    ```bash
-   python init_db.py     # Initialize database and import UKTrees.csv (one-time setup)
+   python init_db.py     # Init database and import UKTrees.csv (one-time setup)
    ```
 
 5. Build frontend and run the application:
