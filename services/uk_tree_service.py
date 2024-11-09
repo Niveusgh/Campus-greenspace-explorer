@@ -1,64 +1,100 @@
-# services/UKTreeService.py
-
-import csv
-from typing import List, Dict
-from datetime import datetime
+# services/uk_tree_service.py
+from .database import Database
+import pandas as pd
+from typing import List, Dict, Optional, Tuple
 
 class UKTreeService:
     def __init__(self):
-        self.trees_data = []
-        self.csv_path = 'data/uk_trees.csv'  # Store exported file here
-        self._load_trees()
-    
-    def _load_trees(self):
-        """Load trees from exported CSV file"""
-        try:
-            with open(self.csv_path, 'r', encoding='utf-8') as file:
-                reader = csv.DictReader(file)
-                self.trees_data = list(reader)
-            print(f"Loaded {len(self.trees_data)} trees from CSV")
-        except Exception as e:
-            print(f"Error loading tree data: {e}")
-            self.trees_data = []
-
-    def get_trees_in_area(self, lat: float, lng: float, radius: float = 100) -> List[Dict]:
-        """Get trees within radius of a point"""
-        nearby_trees = []
-        for tree in self.trees_data:
-            tree_lat = float(tree.get('Latitude', 0))
-            tree_lng = float(tree.get('Longitude', 0))
-            if self._is_within_radius(tree_lat, tree_lng, lat, lng, radius):
-                nearby_trees.append(tree)
-        return nearby_trees
-
-    def _is_within_radius(self, tree_lat: float, tree_lng: float, 
-                         center_lat: float, center_lng: float, 
-                         radius: float) -> bool:
-        """Simple distance check"""
-        from math import cos, asin, sqrt, pi
-        
-        def distance(lat1, lon1, lat2, lon2):
-            p = pi/180
-            a = 0.5 - cos((lat2-lat1)*p)/2 + cos(lat1*p) * cos(lat2*p) * (1-cos((lon2-lon1)*p))/2
-            return 12742 * asin(sqrt(a)) * 1000  # Distance in meters
-            
-        return distance(tree_lat, tree_lng, center_lat, center_lng) <= radius
+        self.db = Database()
 
     def get_all_trees(self) -> List[Dict]:
-        """Get all trees"""
-        return self.trees_data
+        """Get all trees with formatted output"""
+        query = """
+        SELECT tree_id, common_name, latin_name, dbh, 
+               latitude, longitude
+        FROM trees
+        """
+        trees = self.db.execute_query(query)
+        return [self._format_tree(tree) for tree in trees]
 
-    def get_tree_by_id(self, tree_id: str) -> Dict:
-        """Get specific tree by ID"""
-        for tree in self.trees_data:
-            if tree.get('TreeID') == tree_id:
-                return tree
-        return None
+    def get_tree_by_id(self, tree_id: int) -> Optional[Dict]:
+        """Get single tree by ID"""
+        query = "SELECT * FROM trees WHERE tree_id = ?"
+        result = self.db.execute_query(query, (tree_id,))
+        return self._format_tree(result[0]) if result else None
 
-    def get_species_list(self) -> List[str]:
-        """Get list of unique species"""
-        species = set()
-        for tree in self.trees_data:
-            if 'Species' in tree:
-                species.add(tree['Species'])
-        return sorted(list(species))
+    def get_trees_by_species(self, latin_name: str) -> List[Dict]:
+        """Get all trees of a specific species"""
+        query = "SELECT * FROM trees WHERE latin_name LIKE ?"
+        trees = self.db.execute_query(query, (f"%{latin_name}%",))
+        return [self._format_tree(tree) for tree in trees]
+
+    def get_trees_in_area(self, bounds: Dict[str, float]) -> List[Dict]:
+        """Get trees within map bounds"""
+        query = """
+        SELECT * FROM trees 
+        WHERE latitude BETWEEN ? AND ?
+        AND longitude BETWEEN ? AND ?
+        """
+        params = (
+            bounds['south'], bounds['north'],
+            bounds['west'], bounds['east']
+        )
+        trees = self.db.execute_query(query, params)
+        return [self._format_tree(tree) for tree in trees]
+
+    def import_uk_trees(self, csv_path: str) -> Tuple[bool, str]:
+        """Import trees from official CSV file"""
+        try:
+            df = pd.read_csv(csv_path)
+            # Clean column names
+            df.columns = [
+                'common_name', 'latin_name', 'dbh',
+                'latitude', 'longitude', 'tree_id'
+            ]
+            
+            self.db.bulk_insert_from_df('trees', df)
+            return True, f"Successfully imported {len(df)} trees"
+        except Exception as e:
+            return False, f"Error importing trees: {str(e)}"
+
+    def get_species_count(self) -> Dict[str, int]:
+        """Get count of trees by species"""
+        query = """
+        SELECT latin_name, COUNT(*) as count
+        FROM trees
+        GROUP BY latin_name
+        ORDER BY count DESC
+        """
+        results = self.db.execute_query(query)
+        return {row[0]: row[1] for row in results}
+
+    def _format_tree(self, tree_tuple: tuple) -> Dict:
+        """Convert tree tuple to dictionary"""
+        return {
+            'tree_id': tree_tuple[0],
+            'common_name': tree_tuple[1],
+            'latin_name': tree_tuple[2],
+            'dbh': tree_tuple[3],
+            'latitude': tree_tuple[4],
+            'longitude': tree_tuple[5],
+            'properties': {  # GeoJSON properties
+                'title': tree_tuple[1],
+                'description': f"{tree_tuple[2]} (DBH: {tree_tuple[3]}cm)"
+            }
+        }
+
+    def get_trees_geojson(self) -> Dict:
+        """Get trees in GeoJSON format for mapping"""
+        trees = self.get_all_trees()
+        return {
+            'type': 'FeatureCollection',
+            'features': [{
+                'type': 'Feature',
+                'geometry': {
+                    'type': 'Point',
+                    'coordinates': [tree['longitude'], tree['latitude']]
+                },
+                'properties': tree['properties']
+            } for tree in trees]
+        }

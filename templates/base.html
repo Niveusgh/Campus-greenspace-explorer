@@ -3,38 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Explore University of Kentucky's campus green spaces">
+    <meta name="theme-color" content="#558B6E">
     <title>{% block title %}CampusGreen{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <header class="header-text">
-        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="CampusGreen Logo" class="logo">
-        <h1 class="site-title">CampusGreen</h1>
-        <p class="site-subtitle">Explore the green spaces on our campus</p>
+    <header>
+        <div class="header-content">
+            <img src="{{ url_for('static', filename='images/logo.png') }}"
+                 alt="CampusGreen Logo"
+                 class="logo"
+                 width="50"
+                 height="50">
+            <div class="header-text">
+                <h1 class="site-title">CampusGreen</h1>
+                <p class="site-subtitle">Explore the green spaces on our campus</p>
+            </div>
+        </div>
     </header>
 
     <nav class="nav-bar">
         <ul>
-            <li><a href="{{ url_for('index') }}">Home</a></li>
-            <li><a href="{{ url_for('map') }}">Map</a></li>
-            <li><a href="{{ url_for('about') }}">About</a></li>
+            <li><a href="{{ url_for('index') }}" {% if request.endpoint == 'index' %}class="active"{% endif %}>Home</a></li>
+            <li><a href="{{ url_for('wellness') }}" {% if request.endpoint == 'wellness' %}class="active"{% endif %}>Benefits</a></li>
+            <li><a href="{{ url_for('about') }}" {% if request.endpoint == 'about' %}class="active"{% endif %}>About</a></li>
         </ul>
     </nav>
 
     <main>
-        {% block content %}
-        {% endblock %}
+        {% block content %}{% endblock %}
     </main>
 
     <footer>
-        <p>&copy; 2024 CampusGreen - Team 0x22 - University of Kentucky</p>
+        <p>&copy; {{ current_year }} CampusGreen - Team 0x22 - University of Kentucky</p>
     </footer>
 
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>
-
-

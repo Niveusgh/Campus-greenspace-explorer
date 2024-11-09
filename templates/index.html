@@ -1,28 +1,289 @@
 {% extends "base.html" %}
 
+{% block title %}CampusGreen - Interactive Campus Map{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Layout */
+    .main-container {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        padding: 10px;
+        margin-bottom: 70px;
+    }
+
+    /* Sidebar */
+    .sidebar {
+        background: #222;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .sidebar-content {
+        padding: 15px;
+    }
+
+    .green-space-list {
+        margin-top: 15px;
+    }
+
+    .green-space-item {
+        border-radius: 4px;
+        padding: 15px;
+        margin-bottom: 10px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .green-space-item:hover {
+        background: #333;
+    }
+
+    .green-space-item h3 {
+        color: #558B6E;
+        margin-bottom: 5px;
+    }
+
+    /* Map Section */
+    .map-section {
+        border-radius: 8px;
+        padding: 15px;
+        height: calc(100vh - 250px);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .map-controls {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 15px;
+        overflow-x: auto;
+        padding-bottom: 5px;
+    }
+
+    .control-button {
+        padding: 8px 16px;
+        background: #558B6E;
+        color: white;
+        border: none;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .control-button.active {
+        background: #3A5E4A;
+    }
+
+    /* Map Container */
+    .map-container {
+        position: relative;
+        border-radius: 4px;
+        overflow: hidden;
+        flex-grow: 1;
+    }
+
+    .map-background {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: 1;
+        transition: opacity 0.3s;
+    }
+
+    .map-background.hidden {
+        opacity: 0;
+    }
+
+    .map-layers svg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 2;
+    }
+
+    /* Info Panel */
+    .info-panel {
+        background: #2A2A2A;
+        padding: 15px;
+        border-radius: 4px;
+        margin-top: 10px;
+        color: #C7C4BF;
+        max-height: 30vh;
+        overflow-y: auto;
+    }
+
+    .info-panel h3 {
+        color: #558B6E;
+        margin-bottom: 10px;
+    }
+
+    /* Desktop */
+    @media (min-width: 768px) {
+        .main-container {
+            flex-direction: row;
+            padding: 20px;
+        }
+
+        .sidebar {
+            width: 300px;
+            flex-shrink: 0;
+        }
+
+        .map-section {
+            flex-grow: 1;
+            height: calc(100vh - 200px);
+        }
+
+        .info-panel {
+            max-height: 200px;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<section id="welcome">
-    <h2>Welcome to CampusGreen</h2>
-    <p>Discover the natural beauty of UK.</p>
-</section>
+<div class="main-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-content">
+            <section id="welcome">
+                <h2>Welcome to CampusGreen</h2>
+                <p>Discover the natural beauty of UK campus.</p>
+            </section>
 
-<section id="featured-spaces">
-    <h2>List of Green Spaces</h2>
-    <div class="green-space-list">
-        <div class="green-space-item">
-            <h3>WT Young Library Lawn</h3>
-            <p>An open space perfect for sunbathing.</p>
+            <section class="green-space-list">
+                {% for location, info in location_info.items() %}
+                <div class="green-space-item" data-location="{{ location }}">
+                    <h3>{{ location }}</h3>
+                    <p>{{ info.description[:50] }}...</p>
+                </div>
+                {% endfor %}
+            </section>
         </div>
-        <div class="green-space-item">
-            <h3>President Garden</h3>
-            <p>Home to a nice lily pond.</p>
-        </div>
-    </div>
-</section>
+    </aside>
 
-<section id="get-started">
-    <h2>Get Started</h2>
-    <p>Ready to explore? Head over to our map!</p>
-    <a href="{{ url_for('map') }}" class="btn">View Map</a>
-</section>
+    <!-- Map -->
+    <section class="map-section">
+        <div class="map-controls">
+            <button class="control-button active" data-control="background">Background</button>
+            {% for layer in map_layers %}
+            <button class="control-button active" data-layer="{{ layer.id }}">{{ layer.name }}</button>
+            {% endfor %}
+        </div>
+        
+        <div class="map-container">
+            <img src="{{ url_for('static', filename='images/map/campus-background.webp') }}"
+                 alt="Campus Map Background"
+                 class="map-background"
+                 id="mapBackground">
+            <div class="map-layers"></div>
+        </div>
+
+        <div class="info-panel">
+            <p>📍 Select any green space to learn more!</p>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // DOM Elements
+    const mapLayers = document.querySelector('.map-layers');
+    const infoPanel = document.querySelector('.info-panel');
+    const backgroundToggle = document.querySelector('[data-control="background"]');
+    const mapBackground = document.getElementById('mapBackground');
+
+    // Map Configuration
+    const svgLayers = {
+        buildings: "{{ url_for('static', filename='images/map/Buildings.svg') }}",
+        spaces: "{{ url_for('static', filename='images/map/GreenSpaces.svg') }}",
+        paths: "{{ url_for('static', filename='images/map/Paths.svg') }}"
+    };
+
+    const locationInfo = {{ location_info|tojson|safe }};
+
+    // Load Map Layers
+    async function loadMapLayers() {
+        for (const [key, url] of Object.entries(svgLayers)) {
+            try {
+                const response = await fetch(url);
+                const svgContent = await response.text();
+                const div = document.createElement('div');
+                div.innerHTML = svgContent;
+                const svg = div.querySelector('svg');
+                
+                svg.classList.add(`layer-${key}`);
+                mapLayers.appendChild(svg);
+
+                // Add click handlers to SVG elements
+                svg.querySelectorAll('path, polygon').forEach(element => {
+                    element.addEventListener('click', () => {
+                        const name = element.getAttribute('id') || 'Unnamed Location';
+                        updateInfoPanel(name);
+                    });
+                });
+            } catch (error) {
+                console.error(`Failed to load ${key} layer:`, error);
+            }
+        }
+    }
+
+    // Layer Toggle Controls
+    document.querySelectorAll('.control-button[data-layer]').forEach(button => {
+        button.addEventListener('click', () => {
+            button.classList.toggle('active');
+            const layer = button.dataset.layer;
+            const svg = document.querySelector(`.layer-${layer}`);
+            if (svg) {
+                svg.style.display = button.classList.contains('active') ? 'block' : 'none';
+            }
+        });
+    });
+
+    // Background Toggle
+    backgroundToggle?.addEventListener('click', () => {
+        backgroundToggle.classList.toggle('active');
+        mapBackground.classList.toggle('hidden');
+    });
+
+    // Sidebar Location Links
+    document.querySelectorAll('.green-space-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const location = item.dataset.location;
+            updateInfoPanel(location);
+        });
+    });
+
+    // Update Info Panel Content
+    function updateInfoPanel(locationName) {
+        const info = locationInfo[locationName] || {
+            description: 'A beautiful spot on campus.',
+            features: ['Green Space']
+        };
+
+        infoPanel.innerHTML = `
+            <h3>${locationName}</h3>
+            <p>${info.description}</p>
+            ${info.features.length ? `
+                <h4 style="color: #558B6E; margin-top: 10px;">Features:</h4>
+                <ul style="list-style-position: inside; margin-top: 5px;">
+                    ${info.features.map(f => `<li>${f}</li>`).join('')}
+                </ul>
+            ` : ''}
+        `;
+    }
+
+    // Initialize Map
+    loadMapLayers();
+});
+</script>
 {% endblock %}
