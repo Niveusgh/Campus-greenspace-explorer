@@ -1,8 +1,12 @@
-from flask import Flask, render_template, send_from_directory
+from flask import Flask, jsonify, render_template, send_from_directory
+from flask_cors import CORS
 from datetime import datetime
 import os
+from services.database import Database
+from services.uk_tree_service import UKTreeService
 
 app = Flask(__name__)
+CORS(app)
 
 # Development configuration
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
@@ -26,6 +30,26 @@ CAMPUS_DATA = {
     }
 }
 
+# Register blueprints
+from routes.tree_routes import tree_routes
+app.register_blueprint(tree_routes)
+
+# Initialize database
+@app.cli.command('init-db')
+def init_db_command():
+    """Clear existing data and create new tables."""
+    db = Database()
+    db.get_connection()
+    print('Initialized the database.')
+
+@app.cli.command('import-trees')
+def import_trees_command():
+    """Import trees from CSV."""
+    uk_service = UKTreeService()
+    csv_path = os.path.join('data', 'UKTrees.csv')
+    success, message = uk_service.import_uk_trees(csv_path)
+    print(message)
+
 # Main routes
 @app.route('/')
 def index():
@@ -40,8 +64,6 @@ def wellness():
 @app.route('/about')
 def about():
     return render_template('about.html')
-
-# Remove /map route since map is on index
 
 # Template context processor for global variables
 @app.context_processor

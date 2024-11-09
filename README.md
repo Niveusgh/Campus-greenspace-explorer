@@ -63,8 +63,7 @@ For detailed installation instructions, see [INSTALLATION.md](INSTALLATION.md)
 
 4. Set up the database:
    ```bash
-   flask init-db        # Create empty database
-   flask import-trees   # Convert UKTrees.csv into database (one-time import)
+   python init_db.py     # Initialize database and import UKTrees.csv (one-time setup)
    ```
 
 5. Build frontend and run the application:
