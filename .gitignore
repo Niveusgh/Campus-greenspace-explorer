@@ -32,11 +32,11 @@ instance/
 *.db
 *.sqlite3
 
+node_modules/
+node_modules/*
+
 # React/Node
 node_modules/
 static/js/react/dist/
 static/js/react/dist/*
 *.c3b53907.js    # or more generally: *.js.map
-
-node_modules/
-node_modules/*
