@@ -42,7 +42,14 @@ The application uses two main data sources:
 - pip (Python package installer)
 
 ### Installation
+You can access Campus Greenspace Explorer in two ways:
+
+#### 1. Online Version
+Visit [campusGreen.pythonanywhere.com](http://campusGreen.pythonanywhere.com) to use the application directly in your browser.
+
+#### 2. Local Installation
 For detailed installation instructions, see [INSTALLATION.md](INSTALLATION.md)
+
 
 1. Clone the repository:
    ```bash
