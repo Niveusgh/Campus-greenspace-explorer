@@ -4,7 +4,7 @@
 
 {% block extra_css %}
 <style>
-    /* Layout */
+    /* Core Layout */
     .main-container {
         display: flex;
         flex-direction: column;
@@ -13,20 +13,16 @@
         margin-bottom: 70px;
     }
 
-    /* Sidebar */
+    /* Sidebar Components */
     .sidebar {
         background: #222;
         border-radius: 8px;
         overflow: hidden;
     }
 
-    .sidebar-content {
-        padding: 15px;
-    }
+    .sidebar-content { padding: 15px; }
 
-    .green-space-list {
-        margin-top: 15px;
-    }
+    .green-space-list { margin-top: 15px; }
 
     .green-space-item {
         border-radius: 4px;
@@ -36,16 +32,13 @@
         transition: background-color 0.3s;
     }
 
-    .green-space-item:hover {
-        background: #333;
+    .green-space-item:hover { background: #333; }
+    .green-space-item h3 { 
+        color: #558B6E; 
+        margin-bottom: 5px; 
     }
 
-    .green-space-item h3 {
-        color: #558B6E;
-        margin-bottom: 5px;
-    }
-
-    /* Map Section */
+    /* Map Components */
     .map-section {
         border-radius: 8px;
         padding: 15px;
@@ -72,11 +65,8 @@
         transition: background-color 0.3s;
     }
 
-    .control-button.active {
-        background: #3A5E4A;
-    }
+    .control-button.active { background: #3A5E4A; }
 
-    /* Map Container */
     .map-container {
         position: relative;
         border-radius: 4px;
@@ -95,9 +85,7 @@
         transition: opacity 0.3s;
     }
 
-    .map-background.hidden {
-        opacity: 0;
-    }
+    .map-background.hidden { opacity: 0; }
 
     .map-layers svg {
         position: absolute;
@@ -124,7 +112,7 @@
         margin-bottom: 10px;
     }
 
-    /* Desktop */
+    /* Desktop Responsive */
     @media (min-width: 768px) {
         .main-container {
             flex-direction: row;
@@ -141,16 +129,13 @@
             height: calc(100vh - 200px);
         }
 
-        .info-panel {
-            max-height: 200px;
-        }
+        .info-panel { max-height: 200px; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="main-container">
-    <!-- Sidebar -->
     <aside class="sidebar">
         <div class="sidebar-content">
             <section id="welcome">
@@ -169,7 +154,6 @@
         </div>
     </aside>
 
-    <!-- Map -->
     <section class="map-section">
         <div class="map-controls">
             <button class="control-button active" data-control="background">Background</button>
@@ -197,11 +181,30 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Configuration
+    const CONFIG = {
+        mapCenter: [38.0314, -84.5046],
+        mapZoom: 15,
+        bounds: {
+            north: 38.040822,
+            south: 38.0319305,
+            east: -84.5009042,
+            west: -84.507761
+        },
+        pathStyle: {
+            color: '#0066ff',
+            weight: 2,
+            opacity: 0.8
+        }
+    };
+
     // DOM Elements
-    const mapLayers = document.querySelector('.map-layers');
-    const infoPanel = document.querySelector('.info-panel');
-    const backgroundToggle = document.querySelector('[data-control="background"]');
-    const mapBackground = document.getElementById('mapBackground');
+    const elements = {
+        mapLayers: document.querySelector('.map-layers'),
+        infoPanel: document.querySelector('.info-panel'),
+        backgroundToggle: document.querySelector('[data-control="background"]'),
+        mapBackground: document.getElementById('mapBackground')
+    };
 
     // Map Configuration
     const svgLayers = {
@@ -212,40 +215,88 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const locationInfo = {{ location_info|tojson|safe }};
 
-    // Leaflet Map Initialization
-    const map = L.map('leaflet-map').setView([38.0314, -84.5046], 15); // UK coordinates
-
+    // Map Initialization
+    const map = L.map('leaflet-map').setView(CONFIG.mapCenter, CONFIG.mapZoom);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // Load your OSM data
-    fetch("{{ url_for('static', filename='images/map/map.osm') }}")
-        .then(response => response.text())
-        .then(xmlText => {
-            const parser = new DOMParser();
-            const osmXmlData = parser.parseFromString(xmlText, "text/xml");
-            const osm = new L.OSM.DataLayer(osmXmlData, {
-                style: function(feature) {
-                    if (feature.geometry.type === 'Point') {
-                        return {
-                            radius: 0,  // Make points invisible
-                            fillOpacity: 0,
-                            opacity: 0
-                        };
-                    } else {
-                        return {
-                            stroke: true,
-                            color: '#333',  // or whatever color you want for lines
-                            weight: 1,
-                            opacity: 0.5,
-                            fillColor: '#f0f0f0',
-                            fillOpacity: 0.3
-                        };
-                    }
+    // Utility Functions
+    function isWithinBounds(lat, lon) {
+        return lat >= CONFIG.bounds.south && 
+               lat <= CONFIG.bounds.north && 
+               lon >= CONFIG.bounds.west && 
+               lon <= CONFIG.bounds.east;
+    }
+
+    function wayHasPointsInBounds(coordinates) {
+        return coordinates.some(coord => isWithinBounds(coord[0], coord[1]));
+    }
+
+    function updateInfoPanel(locationName) {
+        const info = locationInfo[locationName] || {
+            description: 'A beautiful spot on campus.',
+            features: ['Green Space']
+        };
+
+        elements.infoPanel.innerHTML = `
+            <h3>${locationName}</h3>
+            <p>${info.description}</p>
+            ${info.features.length ? `
+                <h4 style="color: #558B6E; margin-top: 10px;">Features:</h4>
+                <ul style="list-style-position: inside; margin-top: 5px;">
+                    ${info.features.map(f => `<li>${f}</li>`).join('')}
+                </ul>
+            ` : ''}
+        `;
+    }
+
+    // Load OSM Data
+    async function loadOSMData() {
+        const response = await fetch("{{ url_for('static', filename='images/map/map.osm') }}");
+        const xmlText = await response.text();
+        const parser = new DOMParser();
+        const osmXmlData = parser.parseFromString(xmlText, "text/xml");
+        
+        const paths = processOSMWays(osmXmlData);
+        const pathLayer = L.featureGroup(paths).addTo(map);
+
+        map.fitBounds([
+            [CONFIG.bounds.south, CONFIG.bounds.west],
+            [CONFIG.bounds.north, CONFIG.bounds.east]
+        ]);
+    }
+
+    function processOSMWays(osmXmlData) {
+        const paths = [];
+        const ways = osmXmlData.getElementsByTagName('way');
+        
+        for (const way of ways) {
+            const coordinates = [];
+            const nodes = way.getElementsByTagName('nd');
+            
+            for (const node of nodes) {
+                const ref = node.getAttribute('ref');
+                const nodeElement = osmXmlData.querySelector(`node[id="${ref}"]`);
+                if (nodeElement) {
+                    const lat = parseFloat(nodeElement.getAttribute('lat'));
+                    const lon = parseFloat(nodeElement.getAttribute('lon'));
+                    coordinates.push([lat, lon]);
                 }
-            }).addTo(map);
-        });
+            }
+            
+            if (coordinates.length > 1 && wayHasPointsInBounds(coordinates)) {
+                const clippedCoordinates = coordinates.filter(([lat, lon]) => 
+                    isWithinBounds(lat, lon)
+                );
+                
+                if (clippedCoordinates.length > 1) {
+                    paths.push(L.polyline(clippedCoordinates, CONFIG.pathStyle));
+                }
+            }
+        }
+        return paths;
+    }
 
     // Load Map Layers
     async function loadMapLayers() {
@@ -258,9 +309,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 const svg = div.querySelector('svg');
                 
                 svg.classList.add(`layer-${key}`);
-                mapLayers.appendChild(svg);
+                elements.mapLayers.appendChild(svg);
 
-                // Add click handlers to SVG elements
                 svg.querySelectorAll('path, polygon').forEach(element => {
                     element.addEventListener('click', () => {
                         const name = element.getAttribute('id') || 'Unnamed Location';
@@ -273,7 +323,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Layer Toggle Controls
+    // Event Listeners
     document.querySelectorAll('.control-button[data-layer]').forEach(button => {
         button.addEventListener('click', () => {
             button.classList.toggle('active');
@@ -285,13 +335,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Background Toggle
-    backgroundToggle?.addEventListener('click', () => {
-        backgroundToggle.classList.toggle('active');
-        mapBackground.classList.toggle('hidden');
+    elements.backgroundToggle?.addEventListener('click', () => {
+        elements.backgroundToggle.classList.toggle('active');
+        elements.mapBackground.classList.toggle('hidden');
     });
 
-    // Sidebar Location Links
     document.querySelectorAll('.green-space-item').forEach(item => {
         item.addEventListener('click', () => {
             const location = item.dataset.location;
@@ -299,27 +347,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Update Info Panel Content
-    function updateInfoPanel(locationName) {
-        const info = locationInfo[locationName] || {
-            description: 'A beautiful spot on campus.',
-            features: ['Green Space']
-        };
-
-        infoPanel.innerHTML = `
-            <h3>${locationName}</h3>
-            <p>${info.description}</p>
-            ${info.features.length ? `
-                <h4 style="color: #558B6E; margin-top: 10px;">Features:</h4>
-                <ul style="list-style-position: inside; margin-top: 5px;">
-                    ${info.features.map(f => `<li>${f}</li>`).join('')}
-                </ul>
-            ` : ''}
-        `;
-    }
-
-    // Initialize Map
+    // Initialize
     loadMapLayers();
+    loadOSMData();
 });
 </script>
 {% endblock %}
