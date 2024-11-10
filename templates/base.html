@@ -9,6 +9,9 @@
     
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-osm/leaflet-osm.js"></script>
     {% block extra_css %}{% endblock %}
 </head>
 <body>

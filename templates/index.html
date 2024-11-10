@@ -184,6 +184,7 @@
                  class="map-background"
                  id="mapBackground">
             <div class="map-layers"></div>
+            <div id="leaflet-map"></div>
         </div>
 
         <div class="info-panel">
@@ -210,6 +211,41 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     const locationInfo = {{ location_info|tojson|safe }};
+
+    // Leaflet Map Initialization
+    const map = L.map('leaflet-map').setView([38.0314, -84.5046], 15); // UK coordinates
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Load your OSM data
+    fetch("{{ url_for('static', filename='images/map/map.osm') }}")
+        .then(response => response.text())
+        .then(xmlText => {
+            const parser = new DOMParser();
+            const osmXmlData = parser.parseFromString(xmlText, "text/xml");
+            const osm = new L.OSM.DataLayer(osmXmlData, {
+                style: function(feature) {
+                    if (feature.geometry.type === 'Point') {
+                        return {
+                            radius: 0,  // Make points invisible
+                            fillOpacity: 0,
+                            opacity: 0
+                        };
+                    } else {
+                        return {
+                            stroke: true,
+                            color: '#333',  // or whatever color you want for lines
+                            weight: 1,
+                            opacity: 0.5,
+                            fillColor: '#f0f0f0',
+                            fillOpacity: 0.3
+                        };
+                    }
+                }
+            }).addTo(map);
+        });
 
     // Load Map Layers
     async function loadMapLayers() {
