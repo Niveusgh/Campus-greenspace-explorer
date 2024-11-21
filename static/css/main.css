@@ -96,6 +96,48 @@ nav ul li a.active {
     border-radius: 4px;
 }
 
+/* Map and Overlay Styles */
+#leaflet-map {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.map-overlays {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.leaflet-overlay-pane {
+    z-index: 400;
+}
+
+.leaflet-overlay-pane svg {
+    pointer-events: auto;
+}
+
+.leaflet-overlay-pane path,
+.leaflet-overlay-pane polygon {
+    fill-opacity: 0.3;
+    stroke-opacity: 0.6;
+    cursor: pointer;
+    transition: fill-opacity 0.3s, stroke-opacity 0.3s;
+}
+
+.leaflet-overlay-pane path:hover,
+.leaflet-overlay-pane polygon:hover {
+    fill-opacity: 0.5;
+    stroke-opacity: 0.8;
+}
+
 /* Interactive Elements */
 .background-toggle {
     padding: 8px 16px;
@@ -110,38 +152,6 @@ nav ul li a.active {
 
 .background-toggle.active {
     background: #3A5E4A;
-}
-
-/* SVG Map Elements */
-.map-background {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    z-index: 1;
-    transition: opacity 0.3s ease;
-}
-
-.map-background.hidden {
-    opacity: 0;
-    pointer-events: none;
-}
-
-#leaflet-map {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 10;  /* Adjust this value based on your layer stacking */
-}
-
-path:hover,
-polygon:hover {
-    cursor: pointer;
-    transition: fill 0.3s;
 }
 
 /* Footer */

@@ -1,4 +1,10 @@
 <svg width="900" height="900" viewBox="0 0 900 900" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M427 850.5C403.562 826.618 389.377 811.434 363 782.5L435 715.5L410 683.5L452 647.5L541.5 752.5L427 850.5Z" stroke="#2F3133" stroke-width="6"/>
-<path d="M505.5 460L341 611C341 611 396.462 673.167 432 713" stroke="#2F3133" stroke-width="6"/>
+  <g id="Buildings" 
+     data-top-lat="38.0407552"
+     data-bottom-lat="38.0322284"
+     data-left-lon="-84.5081140"
+     data-right-lon="-84.4972665">
+    <path d="M427 850.5C403.562 826.618 389.377 811.434 363 782.5L435 715.5L410 683.5L452 647.5L541.5 752.5L427 850.5Z" stroke="#2F3133" stroke-width="6"/>
+    <path d="M505.5 460L341 611C341 611 396.462 673.167 432 713" stroke="#2F3133" stroke-width="6"/>
+    </g>
 </svg>

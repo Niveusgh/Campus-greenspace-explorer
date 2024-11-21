@@ -47,53 +47,59 @@
         flex-direction: column;
     }
 
-    .map-controls {
-        display: flex;
-        gap: 8px;
-        margin-bottom: 15px;
-        overflow-x: auto;
-        padding-bottom: 5px;
-    }
-
-    .control-button {
-        padding: 8px 16px;
-        background: #558B6E;
-        color: white;
-        border: none;
-        border-radius: 20px;
-        cursor: pointer;
-        transition: background-color 0.3s;
-    }
-
-    .control-button.active { background: #3A5E4A; }
-
     .map-container {
         position: relative;
         border-radius: 4px;
         overflow: hidden;
         flex-grow: 1;
+        height: 100%;
     }
 
-    .map-background {
+    #leaflet-map {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        object-fit: cover;
         z-index: 1;
-        transition: opacity 0.3s;
     }
 
-    .map-background.hidden { opacity: 0; }
-
-    .map-layers svg {
+    .map-overlays {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        z-index: 2;
+        z-index: 999;
+        pointer-events: none;
+    }
+
+    .svg-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    .svg-overlay svg {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        pointer-events: auto;
+    }
+
+    .svg-overlay svg path,
+    .svg-overlay svg polygon {
+        fill-opacity: 0.3;
+        stroke-opacity: 0.6;
+        cursor: pointer;
+        transition: fill-opacity 0.3s;
+    }
+
+    .svg-overlay svg path:hover,
+    .svg-overlay svg polygon:hover {
+        fill-opacity: 0.5;
     }
 
     /* Info Panel */
@@ -155,20 +161,13 @@
     </aside>
 
     <section class="map-section">
-        <div class="map-controls">
-            <button class="control-button active" data-control="background">Background</button>
-            {% for layer in map_layers %}
-            <button class="control-button active" data-layer="{{ layer.id }}">{{ layer.name }}</button>
-            {% endfor %}
-        </div>
-        
         <div class="map-container">
-            <img src="{{ url_for('static', filename='images/map/campus-background.webp') }}"
-                 alt="Campus Map Background"
-                 class="map-background"
-                 id="mapBackground">
-            <div class="map-layers"></div>
             <div id="leaflet-map"></div>
+            <div class="map-overlays">
+                <!-- <div id="buildings-overlay" class="svg-overlay"></div> -->
+                <div id="spaces-overlay" class="svg-overlay"></div>
+                <!-- <div id="paths-overlay" class="svg-overlay"></div> -->
+            </div>
         </div>
 
         <div class="info-panel">
@@ -183,56 +182,30 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Configuration
     const CONFIG = {
-        mapCenter: [38.0364, -84.5043], // Adjusted center point to focus on the main campus area
-        mapZoom: 19, // Increased zoom level from 15 to 17 for a closer view
+        mapCenter: [38.0364, -84.5043],
+        mapZoom: 19,
         bounds: {
             north: 38.040822,
             south: 38.0319305,
             east: -84.5009042,
             west: -84.507761
-        },
-        pathStyle: {
-            color: '#0066ff',
-            weight: 2,
-            opacity: 0.8
         }
     };
 
     // DOM Elements
     const elements = {
-        mapLayers: document.querySelector('.map-layers'),
-        infoPanel: document.querySelector('.info-panel'),
-        backgroundToggle: document.querySelector('[data-control="background"]'),
-        mapBackground: document.getElementById('mapBackground')
-    };
-
-    // Map Configuration
-    const svgLayers = {
-        buildings: "{{ url_for('static', filename='images/map/Buildings.svg') }}",
-        spaces: "{{ url_for('static', filename='images/map/GreenSpaces.svg') }}",
-        paths: "{{ url_for('static', filename='images/map/Paths.svg') }}"
+        infoPanel: document.querySelector('.info-panel')
     };
 
     const locationInfo = {{ location_info|tojson|safe }};
 
-    // Map Initialization
+    // Initialize Leaflet map
     const map = L.map('leaflet-map').setView(CONFIG.mapCenter, CONFIG.mapZoom);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // Utility Functions
-    function isWithinBounds(lat, lon) {
-        return lat >= CONFIG.bounds.south && 
-               lat <= CONFIG.bounds.north && 
-               lon >= CONFIG.bounds.west && 
-               lon <= CONFIG.bounds.east;
-    }
-
-    function wayHasPointsInBounds(coordinates) {
-        return coordinates.some(coord => isWithinBounds(coord[0], coord[1]));
-    }
-
+    // Function to update info panel
     function updateInfoPanel(locationName) {
         const info = locationInfo[locationName] || {
             description: 'A beautiful spot on campus.',
@@ -251,105 +224,68 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
     }
 
-    // Load OSM Data
-    async function loadOSMData() {
-        const response = await fetch("{{ url_for('static', filename='images/map/map.osm') }}");
-        const xmlText = await response.text();
-        const parser = new DOMParser();
-        const osmXmlData = parser.parseFromString(xmlText, "text/xml");
-        
-        const paths = processOSMWays(osmXmlData);
-        const pathLayer = L.featureGroup(paths).addTo(map);
+// loadSVGOverlay function 
+async function loadSVGOverlay(url, containerId) {
+    try {
+        const response = await fetch(url);
+        const svgContent = await response.text();
+        const container = document.getElementById(containerId);
+        container.innerHTML = svgContent;
 
-        map.fitBounds([
-            [CONFIG.bounds.south, CONFIG.bounds.west],
-            [CONFIG.bounds.north, CONFIG.bounds.east]
-        ]);
-    }
+        const svg = container.querySelector('svg');
+        if (svg) {
+            // Get the SVG group with geographic coordinates
+            const geoGroup = svg.querySelector('g');
+            if (geoGroup) {
+                const topLat = parseFloat(geoGroup.dataset.topLat);
+                const bottomLat = parseFloat(geoGroup.dataset.bottomLat);
+                const leftLon = parseFloat(geoGroup.dataset.leftLon);
+                const rightLon = parseFloat(geoGroup.dataset.rightLon);
 
-    function processOSMWays(osmXmlData) {
-        const paths = [];
-        const ways = osmXmlData.getElementsByTagName('way');
-        
-        for (const way of ways) {
-            const coordinates = [];
-            const nodes = way.getElementsByTagName('nd');
-            
-            for (const node of nodes) {
-                const ref = node.getAttribute('ref');
-                const nodeElement = osmXmlData.querySelector(`node[id="${ref}"]`);
-                if (nodeElement) {
-                    const lat = parseFloat(nodeElement.getAttribute('lat'));
-                    const lon = parseFloat(nodeElement.getAttribute('lon'));
-                    coordinates.push([lat, lon]);
-                }
-            }
-            
-            if (coordinates.length > 1 && wayHasPointsInBounds(coordinates)) {
-                const clippedCoordinates = coordinates.filter(([lat, lon]) => 
-                    isWithinBounds(lat, lon)
+                // Create bounds for the SVG
+                const bounds = L.latLngBounds(
+                    [bottomLat, leftLon],  // Southwest corner
+                    [topLat, rightLon]     // Northeast corner
                 );
-                
-                if (clippedCoordinates.length > 1) {
-                    paths.push(L.polyline(clippedCoordinates, CONFIG.pathStyle));
-                }
-            }
-        }
-        return paths;
-    }
 
-    // Load Map Layers
-    async function loadMapLayers() {
-        for (const [key, url] of Object.entries(svgLayers)) {
-            try {
-                const response = await fetch(url);
-                const svgContent = await response.text();
-                const div = document.createElement('div');
-                div.innerHTML = svgContent;
-                const svg = div.querySelector('svg');
-                
-                svg.classList.add(`layer-${key}`);
-                elements.mapLayers.appendChild(svg);
+                // Create an SVG overlay using Leaflet's SVG overlay
+                const overlay = L.svgOverlay(svg, bounds, {
+                    interactive: true,
+                    bubblingMouseEvents: false
+                }).addTo(map);
 
+                // Add click handlers to paths and polygons
                 svg.querySelectorAll('path, polygon').forEach(element => {
                     element.addEventListener('click', () => {
                         const name = element.getAttribute('id') || 'Unnamed Location';
                         updateInfoPanel(name);
                     });
                 });
-            } catch (error) {
-                console.error(`Failed to load ${key} layer:`, error);
             }
         }
+    } catch (error) {
+        console.error(`Failed to load SVG overlay:`, error);
     }
+}
 
-    // Event Listeners
-    document.querySelectorAll('.control-button[data-layer]').forEach(button => {
-        button.addEventListener('click', () => {
-            button.classList.toggle('active');
-            const layer = button.dataset.layer;
-            const svg = document.querySelector(`.layer-${layer}`);
-            if (svg) {
-                svg.style.display = button.classList.contains('active') ? 'block' : 'none';
-            }
-        });
-    });
+    // Load all overlays
+    //loadSVGOverlay("{{ url_for('static', filename='images/map/Buildings.svg') }}", 'buildings-overlay');
+    loadSVGOverlay("{{ url_for('static', filename='images/map/GreenSpaces.svg') }}", 'spaces-overlay');
+    //loadSVGOverlay("{{ url_for('static', filename='images/map/Paths.svg') }}", 'paths-overlay');
 
-    elements.backgroundToggle?.addEventListener('click', () => {
-        elements.backgroundToggle.classList.toggle('active');
-        elements.mapBackground.classList.toggle('hidden');
-    });
+    // Fit map to bounds
+    map.fitBounds([
+        [CONFIG.bounds.south, CONFIG.bounds.west],
+        [CONFIG.bounds.north, CONFIG.bounds.east]
+    ]);
 
+    // Handle green space item clicks
     document.querySelectorAll('.green-space-item').forEach(item => {
         item.addEventListener('click', () => {
             const location = item.dataset.location;
             updateInfoPanel(location);
         });
     });
-
-    // Initialize
-    loadMapLayers();
-    loadOSMData();
 });
 </script>
 {% endblock %}
