@@ -126,16 +126,16 @@ nav ul li a.active {
 
 .leaflet-overlay-pane path,
 .leaflet-overlay-pane polygon {
-    fill-opacity: 0.3;
-    stroke-opacity: 0.6;
+    fill-opacity: 0.7;
+    stroke-opacity: 0.8;
     cursor: pointer;
     transition: fill-opacity 0.3s, stroke-opacity 0.3s;
 }
 
 .leaflet-overlay-pane path:hover,
 .leaflet-overlay-pane polygon:hover {
-    fill-opacity: 0.5;
-    stroke-opacity: 0.8;
+    fill-opacity: 0.8;
+    stroke-opacity: 0.9;
 }
 
 /* Interactive Elements */
